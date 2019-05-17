@@ -2,7 +2,7 @@
 
 LC_ALL=C
 
-UUID=$(dmidecode | grep "UUID:" | sed -n "/UUID:/s/UUID://p" | tr -d '[:space:]')
+UUID=$(dmidecode -s system-uuid | tr -d '[:space:]')
 
 if [ -z "$UUID" ] ; then
 	>&2 echo "No UUID found, can't determine hostnqn."
