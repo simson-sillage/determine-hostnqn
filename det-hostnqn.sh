@@ -19,11 +19,18 @@ if ! [[ $UUID =~ ^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$ 
 	exit 2
 fi
 
-# HEURISTIC: if any one given character occurs more than 30% of the time, it is
-# likely that the UUID is fake.
+# HEURISTIC:
+# (1) if any one given character occurs more than 50% of the time, it is likely
+# that the UUID is fake.
+# (2) if the first or the last group consists of mostly the same character, it
+# is likely that the UUID is fake.
+FIRST_GROUP="$(echo $UUID | cut -d'-' -f1)"
+LAST_GROUP="$(echo $UUID | cut -d'-' -f5)"
 for i in {{0..9},{a..z}} ; do
-	COUNT="${UUID//[^$i]}"
-	if [ ${#COUNT} -ge 11 ] ; then
+	COUNT_TOTAL="${UUID//[^$i]}"
+	COUNT_FIRST="${FIRST_GROUP//[^$i]}"
+	COUNT_LAST="${LAST_GROUP//[^$i]}"
+	if [ ${#COUNT_TOTAL} -ge 16 ] || [ ${#COUNT_FIRST} -ge 7 ] || [ ${#COUNT_LAST} -ge 11 ] ; then
 		>&2 echo "UUID is too repetitive. This may be a false alert."
 		>&2 echo "Repetitive UUID: ${UUID}"
 		exit 3
